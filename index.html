@@ -55,6 +55,73 @@ a{color:inherit;text-decoration:none}a:hover{text-decoration:none}
 @media(max-width:690px){.content{padding:18px 13px 65px}.topbar{padding:0 14px}.breadcrumb{display:none}.top-actions{width:100%;justify-content:flex-end;gap:8px}.top-search{flex:1;max-width:400px}.hero{padding:29px 24px;min-height:340px}.hero h1{font-size:35px}.hero p{font-size:12px;max-width:85%}.hero-art{right:-235px;opacity:.28}.stat-grid{gap:9px;margin:11px 0 28px}.stat-card{padding:16px}.stat-card .stat-number{font-size:30px}.spotlight-grid,.dashboard-bottom,.plan-days,.lab-grid{grid-template-columns:1fr}.spotlight-grid .spotlight:nth-child(3){display:flex}.category-grid{grid-template-columns:repeat(2,1fr);gap:9px}.category-card{min-height:106px}.page-title{align-items:start;flex-direction:column;margin-top:10px}.page-title h1{font-size:27px}.library-layout{grid-template-columns:1fr}.question-list-panel{position:static;max-height:260px}.question-scroll{max-height:150px}.reader-title{font-size:22px}.reader-heading,.reader-body,.reader-footer{padding-left:18px;padding-right:18px}.reader-body{padding-top:21px}.reader-tools{margin-left:0}.rich-answer{font-size:12.5px}.lab-art{height:120px}.plan-banner{align-items:flex-start;flex-direction:column}.modal{padding:18px}.form-grid{grid-template-columns:1fr}.hero .hero-chip{display:none}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 .diagram-visual svg text{font-size:14px}.diagram-visual svg .dsmall{font-size:11.5px!important}.diagram-visual svg .dtext{font-size:14px}
+
+/* Large-screen reading comfort: keep mobile typography unchanged. */
+@media (min-width: 901px) {
+  body{font-size:16px}
+  .tiny,.caption{font-size:12px}
+  .small{font-size:14px}
+  .brand-title{font-size:18px}
+  .brand-sub,.nav-label{font-size:12px}
+  .nav-link{font-size:15px;padding:12px 14px}
+  .nav-link .count{font-size:12px}
+  .breadcrumb{font-size:13px}
+  .top-search{font-size:14px}
+  .notice-bar{font-size:14px}
+  .hero p{font-size:16px;line-height:1.85}
+  .btn{font-size:14px}
+  .btn.sm{font-size:13px}
+  .stat-card .stat-title{font-size:13px}
+  .stat-card .stat-meta{font-size:12px}
+  .section-row h2{font-size:24px}
+  .spotlight h3{font-size:19px}
+  .spotlight p{font-size:14px}
+  .category-card h3{font-size:15px}
+  .category-card p{font-size:12px}
+  .tip-card p{font-size:15px}
+  .page-title h1{font-size:36px}
+  .page-title p{font-size:15px}
+  .filter-search input{font-size:14px}
+  .filter-chip,.filter-counter{font-size:12px}
+  .question-item{padding:17px 18px}
+  .question-item h3{font-size:15px;line-height:1.65}
+  .qid,.qfoot,.priority{font-size:12px}
+  .reader-title{font-size:clamp(25px,2.4vw,34px);line-height:1.48}
+  .reader-eyebrow .path{font-size:13px}
+  .meta-pill{font-size:12px}
+  .answer-section-heading h3{font-size:18px}
+  .rich-answer{font-size:16px;line-height:1.95}
+  .rich-answer h3{font-size:19px}
+  .rich-answer table{font-size:15px}
+  .rich-answer pre{font-size:14px;line-height:1.8}
+  .rich-answer code:not(pre code){font-size:14px}
+  .followup .follow-title{font-size:13px}
+  .notes-block textarea{font-size:15px}
+  .reader-footer .nav-prev,.reader-footer .nav-next{font-size:14px}
+  .diagram-badge,.diagram-action,.dctl{font-size:12px}
+  .diagram-desc{font-size:14px}
+  .diagram-visual svg text,.diagram-visual svg .dtext{font-size:15px}
+  .diagram-visual svg .dsmall{font-size:12px!important}
+  .flow-box .flow-name{font-size:15px}
+  .flow-box .flow-desc,.floating-tip{font-size:12px}
+  .lab-text h3{font-size:18px}
+  .lab-text p{font-size:14px}
+  .day-head h3{font-size:16px}
+  .field label{font-size:14px}
+  .field input,.field textarea,.field select{font-size:14px}
+  .modal-head p,.manager-info{font-size:14px}
+}
+@media (min-width: 1600px) {
+  body{font-size:17px}
+  .library-layout{grid-template-columns:minmax(330px,370px) minmax(0,1fr);gap:22px}
+  .reader-title{font-size:36px}
+  .rich-answer{font-size:18px;line-height:1.9}
+  .rich-answer pre{font-size:15px}
+  .rich-answer code:not(pre code){font-size:15px}
+  .rich-answer table{font-size:16px}
+  .question-item h3{font-size:16px}
+}
+
 </style>
 </head>
 <body>
