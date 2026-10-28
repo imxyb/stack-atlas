@@ -38,4 +38,29 @@ for (const match of html.matchAll(scriptRegex)) {
   count++;
 }
 if (count < 3) fail('Missing application scripts');
-console.log('Stack Atlas OK: ' + questions.length + ' unique questions; ' + count + ' JavaScript scripts; Markdown headings and code fences valid.');
+
+const career = readFileSync('career.html', 'utf8');
+const careerScripts = [...career.matchAll(scriptRegex)];
+if (careerScripts.length < 1) fail('Career archive scripts missing');
+for (const [index, match] of careerScripts.entries()) {
+ try { new Script(match[1], { filename: 'career-inline-' + index + '.js' }); }
+ catch(e) { fail('Invalid career JavaScript '+index+': '+e.message); }
+}
+const mobileRequirements = [
+ ['Main mobile bottom nav','mobile-bottom-nav'],
+ ['Mobile question browse mode','mobile-browsing'],
+ ['Mobile dedicated reading mode','mobile-reading'],
+ ['Mobile back action',"case 'mobile-back'"],
+ ['Mobile search focus preserving','refreshLibrary(true)'],
+ ['Scrollable mobile technical diagrams','.diagram-visual>svg{min-width:540px']
+];
+for(const [name, needle] of mobileRequirements) if(!html.includes(needle)) fail(name+' missing');
+const careerRequirements = [
+ ['Document drawer','career-drawer-open'],
+ ['Collapsible document TOC','mobile-toc'],
+ ['Drawer dismiss', 'closeMobilePanels()'],
+ ['Mobile font and overflow','@media(max-width:760px)']
+];
+for(const [name,needle] of careerRequirements) if(!career.includes(needle)) fail(name+' missing');
+console.log('Stack Atlas OK: ' + questions.length + ' unique questions; ' + count + ' main scripts; '+careerScripts.length+' career scripts; responsive navigation and Markdown checks passed.');
+
