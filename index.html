@@ -708,7 +708,7 @@ function handleClick(e){const a=e.target.closest('[data-action]');if(!a)return;c
  case 'priority':state.priority=a.dataset.priority;refreshLibrary();break;
  case 'start':state.savedOnly=false;state.category='all';go('library',{selected:'E01'});break;
  case 'select':selectQ(id);break;
- case 'mobile-back':state.mobileReading=false;render();window.scrollTo({top:0,behavior:'instant'});break;
+ case 'mobile-back':state.mobileReading=false;history.replaceState({},'',location.pathname+location.search);render();window.scrollTo({top:0,behavior:'instant'});break;
  case 'mobile-library-tab':state.savedOnly=false;state.category='all';state.priority='all';state.search='';go('library');break;
  case 'open-diagram':{const d=DIAG.meta[a.dataset.type];if(!d)return;state.savedOnly=false;state.category='all';state.search='';state.priority='all';selectQ(d.featured);break;}
  case 'quicksearch':state.savedOnly=false;state.category='all';state.priority='all';go('library',{focusSearch:true});break;
@@ -730,8 +730,26 @@ function handleClick(e){const a=e.target.closest('[data-action]');if(!a)return;c
  case 'share':{let link=location.href.split('#')[0]+'#q='+id;if(navigator.clipboard?.writeText){navigator.clipboard.writeText(link).then(()=>toast('题目链接已复制')).catch(()=>{toast('复制失败，请手动复制地址栏链接')})}else{window.prompt('复制以下题目链接：',link)}break;}
  case 'diagram':updateDiagram(a.dataset.type,a.dataset.value);break;
  }}
-function refreshLibrary(){if(state.view==='library'){const panel=document.getElementById('view-container');panel.innerHTML=renderLibrary();if(!window.matchMedia('(max-width:760px)').matches){const el=document.querySelector(`.question-item.active`);el?.scrollIntoView({block:'nearest'});}}else render();}
-function handleInput(e){if(e.target.id==='question-search'){const input=e.target;let at=input.selectionStart;state.search=input.value;state.mobileReading=false;refreshLibrary();let el=document.getElementById('question-search');el?.focus();try{el?.setSelectionRange(at,at)}catch{}return;}
+function refreshLibrary(preserveSearchFocus=false){
+ if(state.view!=='library'){render();return;}
+ const panel=document.getElementById('view-container');
+ if(preserveSearchFocus){
+  // Keep the live search input mounted to prevent virtual keyboard flicker on iOS/Android.
+  const template=document.createElement('div');template.innerHTML=renderLibrary();
+  for(const selector of ['#question-scroll','.filter-counter','.page-title h1','#reader-area']){
+   const from=panel.querySelector(selector),replacement=template.querySelector(selector);
+   if(from&&replacement)from.innerHTML=replacement.innerHTML;
+  }
+  const layout=panel.querySelector('.library-layout'),nextLayout=template.querySelector('.library-layout');
+  if(layout&&nextLayout)layout.className=nextLayout.className;
+  return;
+ }
+ panel.innerHTML=renderLibrary();
+ if(!window.matchMedia('(max-width:760px)').matches){
+  const el=document.querySelector('.question-item.active');el?.scrollIntoView({block:'nearest'});
+ }
+}
+function handleInput(e){if(e.target.id==='question-search'){const input=e.target;state.search=input.value;state.mobileReading=false;refreshLibrary(true);return;}
  if(e.target.id==='study-note'){const id=e.target.dataset.qid;state.notes[id]=e.target.value;safeStore(NOTEKEY,state.notes);return;}
  if(e.target.matches('[data-dinput]')){const key=e.target.dataset.dinput;const num=Number(e.target.value);if(!(key in state.diagramStates.gas))return;state.diagramStates.gas[key]=num;const g=state.diagramStates.gas,eff=Math.min(g.tip,Math.max(0,g.max-g.base)),valid=g.base<=g.max;const put=(selector,value)=>{const el=document.querySelector(selector);if(el)el.textContent=value};put(`[data-dnum="${key}"]`,num);put('#gas-base-label',g.base);put('#gas-tip-label',eff);put('#gas-price-label',valid?g.base+eff:'—');const b=document.getElementById('gas-base-bar'),t=document.getElementById('gas-tip-bar');if(b)b.style.width=(valid?g.base/60*100:0)+'%';if(t)t.style.width=(valid?eff/60*100:0)+'%';put('[data-diagram-desc]',valid?'单价 = baseFee + min(priority, maxFee − baseFee)。未用满的 maxFee 不会按上限全额支付。':'当前 maxFee 小于 baseFee，交易在此 baseFee 下不满足纳入区块的费用条件。');}
 }
