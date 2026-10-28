@@ -132,6 +132,11 @@ a{color:inherit;text-decoration:none}a:hover{text-decoration:none}
 (function(){
 'use strict';
 const META={
+ pipeline:{name:'多链数据流水线',sub:'Raw / Normalized / OLAP 与 Reorg 传递',tag:'CHAIN DATA / PIPELINE',color:'#92dfbb',description:'切换采集、解析和服务三个阶段，观察规范区块与重算的边界。',featured:'D01'},
+ riskgraph:{name:'风险传播与超级节点',sub:'一跳、两跳与大型交易所中转路径',tag:'KYT / RISK GRAPH',color:'#f0bd83',description:'比较明确直接交互、概率性多跳归因和超级节点误报。',featured:'D18'},
+ syncmap:{name:'Go sync.Map 版本演进',sub:'旧版 read/dirty 与 Go 1.24+ Hash Trie',tag:'GO / RUNTIME',color:'#82d9d8',description:'两种实现的关键数据结构不同，但 API 和并发语义仍需正确理解。',featured:'G59'},
+ amm:{name:'AMM 价格冲击模拟器',sub:'相同交易量在不同池深下的滑点',tag:'DEFI / AMM',color:'#bfa7ff',description:'恒定乘积模型中，成交均价随输入量与流动性比值变化。',featured:'S26'},
+
  allowance:{name:'Allowance 抢跑模拟器',sub:'重设 50、减去 50、先归零的区别',tag:'SOLIDITY / ERC-20',color:'#efad8b',description:'模拟 Bob 在 Alice 修改额度前先花 100 的情况。',featured:'S20'},
  permit2:{name:'Permit / Permit2 授权链路',sub:'Token Permit、持续授权和一次性转账',tag:'SOLIDITY / PERMIT2',color:'#80d8ca',description:'从权限保存位置、是否需要基础授权到 Nonce 的区别。',featured:'S22'},
  witness:{name:'Permit2 Witness 参数绑定',sub:'识别签名有效但付款被重定向的漏洞',tag:'SOLIDITY / SECURITY',color:'#c1a7ee',description:'交互对比普通签名、正确 Witness 绑定及错误集成。',featured:'S23'},
@@ -154,7 +159,7 @@ const META={
  signature:{name:'EIP-712 签名结构',sub:'Domain、Struct Hash、Nonce 与签名重放',tag:'CRYPTO / SIGNATURE',color:'#8bd9d4',description:'链 ID、合约、消息参数和 nonce 等应被正确绑定在签名域/业务协议中，避免跨链或跨业务重复授权。',featured:'S08'},
  l2:{name:'执行层 / 共识层 / L2',sub:'EL–CL 与 Rollup 的状态承诺关系',tag:'ETHEREUM / ARCHITECTURE',color:'#8cc5f3',description:'执行层 stateRoot、共识层 Beacon State Root、L2 输出承诺不是同一个根，也不表示相同的最终性。',featured:'E24'}
 };
-const defaultS={allowance:'approve',permit2:'native',witness:'plain',trie:'overview',mpt:'branch',storage:1,proof:'account',evm:0,gas:{base:24,max:45,tip:5},reorg:'canonical',kafka:'normal',lock:'unsafe',mvcc:'rr',btree:'cluster',gmp:'running',retries:2,tx:0,proxy:'delegate',signature:'domain',l2:'elcl'};
+const defaultS={pipeline:'collect',riskgraph:'direct',syncmap:'legacy',amm:'low',allowance:'approve',permit2:'native',witness:'plain',trie:'overview',mpt:'branch',storage:1,proof:'account',evm:0,gas:{base:24,max:45,tip:5},reorg:'canonical',kafka:'normal',lock:'unsafe',mvcc:'rr',btree:'cluster',gmp:'running',retries:2,tx:0,proxy:'delegate',signature:'domain',l2:'elcl'};
 const defs=`<defs><marker id="d-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#9ec8a7"/></marker><filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
 const esc=(x)=>String(x).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const node=(x,y,w,h,label,sub,variant='')=>`<rect x="${x}" y="${y}" rx="12" width="${w}" height="${h}" class="dnode ${variant}"/><text x="${x+w/2}" y="${y+25}" text-anchor="middle" class="dtext">${label}</text>${sub?`<text x="${x+w/2}" y="${y+42}" text-anchor="middle" class="dsmall">${sub}</text>`:''}`;
@@ -289,7 +294,45 @@ function diagramWitness(s){
  return {visual:`<div class="diagram-slide"><div class="diagram-flow"><div class="flow-box"><div class="flow-name">用户签名</div><div class="flow-desc">${data[0]}</div></div>${arrowSvg()}<div class="flow-box ${mode==='safe'?'highlight':''}"><div class="flow-name">Router 执行</div><div class="flow-desc">${data[1]}</div></div>${arrowSvg()}<div class="flow-box ${mode==='bug'?'':'highlight'}" style="border-color:${mode==='bug'?'#f2908b':''}"><div class="flow-name">结果</div><div class="flow-desc">${data[2]}</div></div></div></div>`,controls:tab('witness',[['plain','普通签名'],['safe','正确绑定'],['bug','错误集成']],mode),desc:data[3]};
 }
 
-const RENDER={allowance:diagramAllowance,permit2:diagramPermit2,witness:diagramWitness,trie:diagramTrie,mpt:diagramMpt,storage:diagramStorage,proof:diagramProof,evm:diagramEvm,gas:diagramGas,reorg:diagramReorg,kafka:diagramKafka,lock:diagramLock,mvcc:diagramMvcc,btree:diagramBtree,gmp:diagramGmp,retries:diagramRetries,tx:diagramTx,proxy:diagramProxy,signature:diagramSignature,l2:diagramL2};
+
+function diagramPipeline(s){
+ const mode=s.pipeline||'collect';
+ const items=[
+  {id:'collect',title:'① 采集与原始事实',description:'区块、交易、Receipt、Trace、Instruction + blockHash 入 ODS；断线后从 checkpoint 补扫。',active:0},
+  {id:'normalize',title:'② 解码 / 标准化',description:'按各链 ABI/IDL 解码并归一化为 transfer / swap / bridge；parserVersion 可回放升级。',active:1},
+  {id:'serve',title:'③ 分析与应用',description:'DWD / DWS / OLAP / 风控图向 API 服务，重组触发撤销与重新聚合。',active:2}
+ ];
+ const active=items.find(x=>x.id===mode)||items[0];
+ return {visual:`<div class="diagram-slide"><div class="diagram-flow" style="margin:12px auto 16px">${items.map((x,i)=>`<div class="flow-box ${i===active.active?'highlight':''}" style="width:190px;max-width:210px"><div class="flow-name">${x.title}</div><div class="flow-desc">${i===0?'RPC / Raw Block':i===1?'Parser / Normalizer':'Flink / OLAP / Graph'}</div></div>${i<2?arrowSvg():''}`).join('')}</div><div class="metric-tile" style="max-width:600px;margin:16px auto"><div class="label" style="margin-bottom:6px">当前阶段</div><div class="flow-desc" style="font-size:14px;color:#d6ebdc">${active.description}</div></div><div class="floating-tip">Reorg：old blockHash → canonical=false → 删除/冲正衍生数据 → 新分支重放</div></div>`,controls:tab('pipeline',[['collect','原始数据'],['normalize','统一语义'],['serve','查询与风控']],mode),desc:active.description};
+}
+function diagramRiskgraph(s){
+ const mode=s.riskgraph||'direct';
+ const data={
+  direct:['已标记风险源','直接转账','目标地址','可以确证一次直接链上交互，但“直接接触”不等于违规事实。'],
+  indirect:['已标记风险源','DEX / Bridge 中转','两跳目标地址','两跳关联需结合交易金额、资产、时间和协议语义；不能机械当作确定性污染。'],
+  supernode:['高风险地址','CEX 热钱包 / Router','普通用户','超级节点会连接海量无关用户，需要实体语义压缩和置信度，否则产生大量误报。']
+ }[mode];
+ return {visual:`<div class="diagram-slide"><div class="diagram-flow" style="margin:20px auto"><div class="flow-box" style="border-color:#e4a37e"><div class="flow-name">${data[0]}</div><div class="flow-desc">risk source</div></div>${arrowSvg()}<div class="flow-box ${mode==='supernode'?'highlight':''}"><div class="flow-name">${data[1]}</div><div class="flow-desc">transfer / protocol edge</div></div>${arrowSvg()}<div class="flow-box" style="border-color:${mode==='supernode'?'#efa69b':'#a2d5a3'}"><div class="flow-name">${data[2]}</div><div class="flow-desc">risk exposure ?</div></div></div><div class="floating-tip">必须保存证据交易、链、金额、时间、规则版本及置信度；风险分只是辅助判断。</div></div>`,controls:tab('riskgraph',[['direct','直接接触'],['indirect','多跳传播'],['supernode','超级节点误报']],mode),desc:data[3]};
+}
+function diagramSyncmap(s){
+ const modern=(s.syncmap||'legacy')==='modern';
+ const stages=modern?[
+ ['Hash(key)','映射到哈希路径'],['Hash Trie Node','原子指针 + 局部节点锁'],['Value','Load / Store / CAS']
+ ]:[
+ ['read map','atomic readOnly'],['dirty map','mutex + amended'],['promote','misses ≥ len(dirty)']
+ ];
+ return {visual:`<div class="diagram-slide"><div class="diagram-flow" style="margin:16px auto">${stages.map((t,i)=>`<div class="flow-box ${i===1?'highlight':''}" style="min-width:130px"><div class="flow-name">${t[0]}</div><div class="flow-desc">${t[1]}</div></div>${i<2?arrowSvg():''}`).join('')}</div><div class="floating-tip">${modern?'Go 1.24+ 默认：多个哈希分支可使用局部锁；不再依赖全局 read/dirty 提升。':'Go 1.23 及以前：命中 read 无锁；新 Key 在 dirty，miss 达阈值时提升。'}</div></div>`,controls:tab('syncmap',[['legacy','旧版 read/dirty'],['modern','新版 Hash Trie']],modern?'modern':'legacy'),desc:modern?'新 Hash Trie 设计减少高并发不同 Key 修改时的全局争用，但并非任何负载都比 map+Mutex 更快。':'旧版通过 read 命中无锁与 dirty 慢路径折中；读不命中需要持锁并记录 miss。'};
+}
+function diagramAmm(s){
+ const level=s.amm||'low';
+ const reserve={low:100,medium:1000,high:10000}[level]||100;
+ const input=10,fee=0.003,actual=input*(1-fee);
+ const out=reserve*actual/(reserve+actual);
+ const priceImpact=(1-out/input)*100;
+ return {visual:`<div class="diagram-slide"><div class="diagram-data-row" style="margin:19px auto"><div class="metric-tile"><div class="num">${reserve.toLocaleString()}</div><div class="label">X 与 Y 初始储备</div></div><div class="metric-tile"><div class="num">10 X</div><div class="label">本次输入</div></div><div class="metric-tile"><div class="num">${out.toFixed(3)} Y</div><div class="label">实际输出（含 0.3% 费）</div></div></div><div class="metric-tile" style="max-width:370px;margin:10px auto 18px"><div class="num">${priceImpact.toFixed(2)}%</div><div class="label">平均成交价偏离原始现货价（含手续费）</div></div><div class="floating-tip">x · y = k；输出 y·Δx·(1−f)/(x+Δx·(1−f))。池越深，同规模交易的价格影响越低。</div></div>`,controls:tab('amm',[['low','浅池 100'],['medium','中池 1,000'],['high','深池 10,000']],level),desc:'同一笔 10 X 的交易在深池的执行均价更接近初始现货价；前端报价还须考虑其他交易带来的状态变化。'};
+}
+
+const RENDER={pipeline:diagramPipeline,riskgraph:diagramRiskgraph,syncmap:diagramSyncmap,amm:diagramAmm,allowance:diagramAllowance,permit2:diagramPermit2,witness:diagramWitness,trie:diagramTrie,mpt:diagramMpt,storage:diagramStorage,proof:diagramProof,evm:diagramEvm,gas:diagramGas,reorg:diagramReorg,kafka:diagramKafka,lock:diagramLock,mvcc:diagramMvcc,btree:diagramBtree,gmp:diagramGmp,retries:diagramRetries,tx:diagramTx,proxy:diagramProxy,signature:diagramSignature,l2:diagramL2};
 function render(type,states,compact=false){const meta=META[type];if(!meta)return'';let obj=RENDER[type](states||defaultS),desc=obj.desc||meta.description;
  if(compact)return `<div class="lab-art-preview">${obj.visual}</div>`;
  return `<section class="diagram-card" aria-label="${esc(meta.name)} 交互图解"><div class="diagram-head"><span class="diagram-badge">✳ INTERACTIVE DIAGRAM <span style="opacity:.45">/</span> ${esc(meta.tag)}</span><span class="tiny" style="color:#90aca7">可交互</span></div><div class="diagram-visual">${obj.visual}</div>${obj.controls||''}<div class="diagram-desc">${infoIcon()}<span data-diagram-desc>${esc(desc)}</span></div></section>`;
