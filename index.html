@@ -141,6 +141,125 @@ a{color:inherit;text-decoration:none}a:hover{text-decoration:none}
 @media (min-width:1600px) { .rich-answer h4{font-size:20px}.rich-answer table{font-size:16px}.answer-flow-step{font-size:17px} }
 @media (max-width:690px) { .answer-flow{padding:12px}.answer-flow-step{padding:12px;font-size:13px}.rich-answer table{display:block;overflow-x:auto;white-space:normal;font-size:12px} }
 
+
+/* Stack Atlas mobile browsing & reading experience */
+.mobile-bottom-nav,.mobile-reader-back{display:none}
+@media(max-width:760px){
+ html{-webkit-text-size-adjust:100%}
+ body{font-size:16px;line-height:1.7;overflow-x:hidden}
+ button,a,input,select,textarea{touch-action:manipulation}
+ .app-shell,.main-shell,.content,.library-layout,.reader,.reader-body,.rich-answer{min-width:0}
+ .main-shell{margin-left:0;width:100%}
+ .topbar{height:60px;padding:0 11px;gap:10px}
+ .mobile-menu{display:grid;width:44px;height:44px;min-width:44px;border-radius:12px}
+ .top-actions{width:auto;flex:1;gap:7px;min-width:0;justify-content:flex-end}
+ .top-search{height:43px;width:auto;min-width:0;max-width:none;flex:1;padding:9px 10px;font-size:13px}
+ .top-search .kbd{display:none}
+ .top-search span:not(.kbd){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .top-icon{height:42px;width:42px;flex:none}
+ .top-actions>.top-icon[data-action="manager"],.user-pip{display:none}
+ .sidebar{position:fixed;inset:0 auto 0 0;width:min(300px,85vw);height:100dvh;overflow:auto;display:flex;transform:translateX(-105%);z-index:31;padding-bottom:max(24px,env(safe-area-inset-bottom));box-shadow:14px 0 60px #0008}
+ .sidebar.show{transform:translateX(0)}
+ .sidebar-overlay{z-index:30}
+ .sidebar .nav-link{min-height:46px;font-size:15px}
+ .content{padding:14px 12px calc(89px + env(safe-area-inset-bottom))}
+ .mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:27;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));min-height:calc(62px + env(safe-area-inset-bottom));padding:5px 8px calc(5px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--sidebar) 96%,transparent);border-top:1px solid var(--line);backdrop-filter:blur(16px)}
+ .mobile-bottom-item{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;min-width:0;min-height:50px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:11px;font-weight:700}
+ .mobile-bottom-item.active{color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent)}
+ .mobile-bottom-item .icon{width:20px;height:20px}
+ .page-title{margin:4px 0 17px;gap:12px}
+ .page-title h1{font-size:26px;line-height:1.25}
+ .page-title p{font-size:13px;line-height:1.6}
+ .page-title .toolbar{width:100%;display:flex}
+ .page-title .toolbar .btn{min-height:43px;flex:1}
+ .hero{min-height:260px;padding:25px 21px;border-radius:17px}
+ .hero h1{font-size:clamp(29px,8vw,37px);letter-spacing:-.5px;margin:16px 0 11px}
+ .hero p{font-size:14px;line-height:1.75;max-width:100%;margin-bottom:18px}
+ .hero-art{right:-240px;opacity:.1}
+ .hero .hero-chip{display:none}
+ .hero-actions{gap:8px}
+ .hero-actions .btn{min-height:45px;font-size:13px}
+ .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .stat-card{padding:16px 13px;min-width:0}
+ .stat-card .stat-title{font-size:12px}
+ .stat-card .stat-number{font-size:28px}
+ .stat-card .stat-meta{font-size:11px;line-height:1.4}
+ .section-row h2{font-size:20px}
+ .spotlight-grid,.lab-grid,.dashboard-bottom,.plan-days{grid-template-columns:1fr}
+ .spotlight{min-height:165px}
+ .category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .category-card{min-height:100px}
+ .library-layout{display:block}
+ .library-layout.mobile-browsing #reader-area{display:none}
+ .library-layout.mobile-reading .question-list-panel{display:none}
+ .mobile-reading-title{display:none}
+ .library-layout.mobile-reading .mobile-reader-back{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:46px;margin:0 0 11px;position:sticky;top:61px;z-index:16;padding:5px 11px;background:color-mix(in srgb,var(--bg) 95%,transparent);border:1px solid var(--line-soft);border-radius:11px;backdrop-filter:blur(12px)}
+ .mobile-back-button{display:flex;align-items:center;gap:7px;min-height:39px;border:0;background:transparent;color:var(--accent);font-size:14px;font-weight:730}
+ .mobile-reader-current{color:var(--muted);font:600 12px var(--mono)}
+ .question-list-panel{position:static;max-height:none;overflow:visible;border-radius:14px}
+ .question-scroll{max-height:none;overflow:visible}
+ .filter-row{padding:13px}
+ .filter-search input{min-height:47px;font-size:16px;padding:12px 13px 12px 37px}
+ .filter-search svg{top:15px}
+ .filter-chip{min-height:39px;padding:8px 12px;font-size:13px}
+ .filter-counter{padding:12px;font-size:11px}
+ .question-item{padding:16px 15px;min-height:101px}
+ .question-item h3{font-size:16px;line-height:1.55;margin:8px 0}
+ .qid,.qfoot{font-size:12px}
+ .qfoot{flex-wrap:wrap}
+ .priority{font-size:11px}
+ .reader{border-radius:15px;box-shadow:none}
+ .reader-heading{padding:21px 17px 19px}
+ .reader-title{font-size:clamp(22px,6vw,27px);line-height:1.44;letter-spacing:-.2px;margin:14px 0}
+ .reader-eyebrow .path{font-size:11px}
+ .reader-meta{gap:7px}
+ .meta-pill{font-size:11px}
+ .reader-tools{display:flex;gap:7px;margin:8px 0 0;width:100%}
+ .tool-btn{height:43px;width:43px;border-radius:10px}
+ .reader-body{padding:19px 17px 27px}
+ .answer-section-heading h3{font-size:17px}
+ .rich-answer{font-size:16px;line-height:1.85;overflow-wrap:anywhere;word-break:normal}
+ .rich-answer h2{font-size:21px;margin:27px 0 14px}
+ .rich-answer h3{font-size:19px;margin:26px 0 13px}
+ .rich-answer h4{font-size:17px;margin:23px 0 12px}
+ .rich-answer p{line-height:1.83;margin:0 0 16px}
+ .rich-answer ul,.rich-answer ol{padding-left:21px;margin:10px 0 19px}
+ .rich-answer li{margin:8px 0}
+ .rich-answer pre{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;font-size:13px;line-height:1.7;padding:14px 13px}
+ .rich-answer code:not(pre code){font-size:.86em;overflow-wrap:anywhere;word-break:break-word}
+ .rich-answer table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;font-size:13px;white-space:normal;border-radius:9px}
+ .rich-answer table td,.rich-answer table th{min-width:125px;padding:10px 12px;vertical-align:top;line-height:1.65}
+ .diagram-card{margin:0 0 24px;border-radius:14px}
+ .diagram-head{padding:13px 12px 0}
+ .diagram-visual{min-height:220px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;justify-content:flex-start;scrollbar-width:thin;padding:12px}
+ .diagram-visual>svg{min-width:540px;max-height:none;flex:none}
+ .diagram-slide{min-width:0;max-width:100%;padding:8px 0}
+ .diagram-flow{gap:7px;flex-wrap:wrap}
+ .diagram-controls{gap:8px;padding:11px}
+ .dctl{min-height:40px;padding:9px 12px;font-size:12px}
+ .diagram-desc{padding:12px;font-size:13px;line-height:1.65}
+ .floating-tip{font-size:12px}
+ .answer-flow{padding:11px;max-width:100%;margin:15px 0}
+ .answer-flow-step{font-size:14px}
+ .followup{padding:14px}
+ .reading-check{align-items:stretch}
+ .reading-caption{width:100%;margin-bottom:8px}
+ .reading-check .btn{flex:1;min-height:44px}
+ .notes-block textarea{font-size:16px}
+ .reader-footer{padding:13px;gap:9px}
+ .reader-footer .nav-prev,.reader-footer .nav-next{min-height:55px;min-width:0;font-size:12px}
+ .reader-footer .nav-prev span,.reader-footer .nav-next span{overflow:hidden;text-overflow:ellipsis}
+ .modal{max-height:calc(100dvh - 24px);padding:17px}
+ .field input,.field textarea,.field select{font-size:16px}
+}
+@media(max-width:390px){
+ .top-search span:not(.kbd){font-size:12px}
+ .hero-actions .btn{padding:10px}
+ .reader-heading{padding:18px 14px}
+ .reader-body{padding:17px 14px}
+ .rich-answer{font-size:15.5px}
+}
+
 </style>
 </head>
 <body>
@@ -484,7 +603,7 @@ function getFiltered(){const terms=state.search.trim().toLowerCase().split(/\s+/
 function statusLabel(id){const v=state.progress[id];return v==='mastered'?'已掌握':v==='reviewing'?'复习中':'未学习'}
 function statusIcon(id){const v=state.progress[id];return v==='mastered'?icon('check',13):v==='reviewing'?icon('clock',13):icon('eye',13)}
 function renderLibrary(){const list=getFiltered();let selected=state.questions.find(q=>q.id===state.selected);if(!selected||!list.some(q=>q.id===selected.id)){selected=list[0]||null;if(selected)state.selected=selected.id}
-return`<div class="page-title"><div><div class="caption">KNOWLEDGE BANK / DEPTH FIRST</div><h1>${state.savedOnly?'我的收藏':state.category!=='all'?escapeHTML(catFor(state.category).name):'深度题库'}<span style="font:500 17px var(--mono);color:var(--muted);margin-left:12px">/ ${list.length}</span></h1><p>完整参考答案 × 工程追问 × 可交互图解。选择一道题，开始深度学习。</p></div><div class="toolbar"><button class="btn outline sm" data-action="export">${icon('download',15)} 导出题库</button><button class="btn primary sm" data-action="new">${icon('plus',15)} 新增题目</button></div></div><div class="library-layout ${state.mobileReading?'mobile-reading':'mobile-browsing'}"><aside class="question-list-panel"><div class="filter-row"><div class="filter-search">${icon('search',15)}<input id="question-search" type="search" placeholder="搜索：三棵树、MVCC、GMP..." aria-label="搜索题目" value="${escapeHTML(state.search)}" /></div><div class="filter-options"><button class="filter-chip ${state.priority==='all'?'active':''}" data-action="priority" data-priority="all">全部</button><button class="filter-chip ${state.priority==='P0'?'active':''}" data-action="priority" data-priority="P0">P0 高频</button><button class="filter-chip ${state.priority==='P1'?'active':''}" data-action="priority" data-priority="P1">P1 深挖</button><button class="filter-chip ${state.priority==='P2'?'active':''}" data-action="priority" data-priority="P2">P2 进阶</button>${state.category!=='all'?`<button class="filter-chip" data-action="resetcategory">× 清除分类</button>`:''}</div></div><div class="filter-counter"><span>SHOWING ${list.length} / ${state.questions.length}</span><span>${state.savedOnly?'BOOKMARKED':'ALL TOPICS'}</span></div><div class="question-scroll" id="question-scroll">${list.length?list.map(q=>`<button class="question-item ${selected&&selected.id===q.id?'active':''}" data-action="select" data-qid="${q.id}"><div class="qtop"><span class="qid">${escapeHTML(q.id)}</span><span class="priority ${q.priority.toLowerCase()}">${q.priority}</span></div><h3>${escapeHTML(q.title)}</h3><div class="qfoot"><span>${escapeHTML(catFor(q.category).short)}</span>${q.diagram?`<span style="color:var(--accent2)">✧ 图解</span>`:''}<span class="qstatus ${state.progress[q.id]||''}">${statusIcon(q.id)}${statusLabel(q.id)}</span></div></button>`).join(''):`<div class="empty-list">${icon('search',30)}<h3>没有找到相关题目</h3><p>尝试调整关键词或筛选条件。</p><button class="btn sm" data-action="clearfilter">清空筛选</button></div>`}</div></aside><div id="reader-area"><div class="mobile-reader-back"><button class="mobile-back-button" data-action="mobile-back">${icon('left',18)} 返回题目列表</button><span class="mobile-reader-current">${selected?escapeHTML(selected.id):''}</span></div>${selected?renderReader(selected):`<div class="reader"><div class="empty-list" style="padding:110px 20px">没有可展示的题目</div></div>`}</div></div>`;}
+return`<div class="page-title ${state.mobileReading?'mobile-reading-title':''}"><div><div class="caption">KNOWLEDGE BANK / DEPTH FIRST</div><h1>${state.savedOnly?'我的收藏':state.category!=='all'?escapeHTML(catFor(state.category).name):'深度题库'}<span style="font:500 17px var(--mono);color:var(--muted);margin-left:12px">/ ${list.length}</span></h1><p>完整参考答案 × 工程追问 × 可交互图解。选择一道题，开始深度学习。</p></div><div class="toolbar"><button class="btn outline sm" data-action="export">${icon('download',15)} 导出题库</button><button class="btn primary sm" data-action="new">${icon('plus',15)} 新增题目</button></div></div><div class="library-layout ${state.mobileReading?'mobile-reading':'mobile-browsing'}"><aside class="question-list-panel"><div class="filter-row"><div class="filter-search">${icon('search',15)}<input id="question-search" type="search" placeholder="搜索：三棵树、MVCC、GMP..." aria-label="搜索题目" value="${escapeHTML(state.search)}" /></div><div class="filter-options"><button class="filter-chip ${state.priority==='all'?'active':''}" data-action="priority" data-priority="all">全部</button><button class="filter-chip ${state.priority==='P0'?'active':''}" data-action="priority" data-priority="P0">P0 高频</button><button class="filter-chip ${state.priority==='P1'?'active':''}" data-action="priority" data-priority="P1">P1 深挖</button><button class="filter-chip ${state.priority==='P2'?'active':''}" data-action="priority" data-priority="P2">P2 进阶</button>${state.category!=='all'?`<button class="filter-chip" data-action="resetcategory">× 清除分类</button>`:''}</div></div><div class="filter-counter"><span>SHOWING ${list.length} / ${state.questions.length}</span><span>${state.savedOnly?'BOOKMARKED':'ALL TOPICS'}</span></div><div class="question-scroll" id="question-scroll">${list.length?list.map(q=>`<button class="question-item ${selected&&selected.id===q.id?'active':''}" data-action="select" data-qid="${q.id}"><div class="qtop"><span class="qid">${escapeHTML(q.id)}</span><span class="priority ${q.priority.toLowerCase()}">${q.priority}</span></div><h3>${escapeHTML(q.title)}</h3><div class="qfoot"><span>${escapeHTML(catFor(q.category).short)}</span>${q.diagram?`<span style="color:var(--accent2)">✧ 图解</span>`:''}<span class="qstatus ${state.progress[q.id]||''}">${statusIcon(q.id)}${statusLabel(q.id)}</span></div></button>`).join(''):`<div class="empty-list">${icon('search',30)}<h3>没有找到相关题目</h3><p>尝试调整关键词或筛选条件。</p><button class="btn sm" data-action="clearfilter">清空筛选</button></div>`}</div></aside><div id="reader-area"><div class="mobile-reader-back"><button class="mobile-back-button" data-action="mobile-back">${icon('left',18)} 返回题目列表</button><span class="mobile-reader-current">${selected?escapeHTML(selected.id):''}</span></div>${selected?renderReader(selected):`<div class="reader"><div class="empty-list" style="padding:110px 20px">没有可展示的题目</div></div>`}</div></div>`;}
 function splitAnswer(raw){let answer=String(raw||'').replace(/^\*\*参考答案[：:]\*\*\s*/,'').trim();const re=/\*\*(?:追问|面试高频追问|面试加分追问)[：:]\*\*/;const m=re.exec(answer);if(!m)return{main:answer,follow:''};return{main:answer.slice(0,m.index).trim(),follow:answer.slice(m.index).replace(re,'').trim()};}
 function inlineMd(text){let safe=escapeHTML(text);const code=[];safe=safe.replace(/`([^`]+)`/g,(_,x)=>{const tok='@@C'+code.length+'@@';code.push(`<code>${x}</code>`);return tok});
  safe=safe.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g,'<em>$1</em>');
@@ -611,7 +730,7 @@ function handleClick(e){const a=e.target.closest('[data-action]');if(!a)return;c
  case 'share':{let link=location.href.split('#')[0]+'#q='+id;if(navigator.clipboard?.writeText){navigator.clipboard.writeText(link).then(()=>toast('题目链接已复制')).catch(()=>{toast('复制失败，请手动复制地址栏链接')})}else{window.prompt('复制以下题目链接：',link)}break;}
  case 'diagram':updateDiagram(a.dataset.type,a.dataset.value);break;
  }}
-function refreshLibrary(){if(state.view==='library'){const panel=document.getElementById('view-container');panel.innerHTML=renderLibrary();const el=document.querySelector(`.question-item.active`);el?.scrollIntoView({block:'nearest'});}else render();}
+function refreshLibrary(){if(state.view==='library'){const panel=document.getElementById('view-container');panel.innerHTML=renderLibrary();if(!window.matchMedia('(max-width:760px)').matches){const el=document.querySelector(`.question-item.active`);el?.scrollIntoView({block:'nearest'});}}else render();}
 function handleInput(e){if(e.target.id==='question-search'){const input=e.target;let at=input.selectionStart;state.search=input.value;state.mobileReading=false;refreshLibrary();let el=document.getElementById('question-search');el?.focus();try{el?.setSelectionRange(at,at)}catch{}return;}
  if(e.target.id==='study-note'){const id=e.target.dataset.qid;state.notes[id]=e.target.value;safeStore(NOTEKEY,state.notes);return;}
  if(e.target.matches('[data-dinput]')){const key=e.target.dataset.dinput;const num=Number(e.target.value);if(!(key in state.diagramStates.gas))return;state.diagramStates.gas[key]=num;const g=state.diagramStates.gas,eff=Math.min(g.tip,Math.max(0,g.max-g.base)),valid=g.base<=g.max;const put=(selector,value)=>{const el=document.querySelector(selector);if(el)el.textContent=value};put(`[data-dnum="${key}"]`,num);put('#gas-base-label',g.base);put('#gas-tip-label',eff);put('#gas-price-label',valid?g.base+eff:'—');const b=document.getElementById('gas-base-bar'),t=document.getElementById('gas-tip-bar');if(b)b.style.width=(valid?g.base/60*100:0)+'%';if(t)t.style.width=(valid?eff/60*100:0)+'%';put('[data-diagram-desc]',valid?'单价 = baseFee + min(priority, maxFee − baseFee)。未用满的 maxFee 不会按上限全额支付。':'当前 maxFee 小于 baseFee，交易在此 baseFee 下不满足纳入区块的费用条件。');}
