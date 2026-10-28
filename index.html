@@ -132,6 +132,10 @@ a{color:inherit;text-decoration:none}a:hover{text-decoration:none}
 (function(){
 'use strict';
 const META={
+ allowance:{name:'Allowance 抢跑模拟器',sub:'重设 50、减去 50、先归零的区别',tag:'SOLIDITY / ERC-20',color:'#efad8b',description:'模拟 Bob 在 Alice 修改额度前先花 100 的情况。',featured:'S20'},
+ permit2:{name:'Permit / Permit2 授权链路',sub:'Token Permit、持续授权和一次性转账',tag:'SOLIDITY / PERMIT2',color:'#80d8ca',description:'从权限保存位置、是否需要基础授权到 Nonce 的区别。',featured:'S22'},
+ witness:{name:'Permit2 Witness 参数绑定',sub:'识别签名有效但付款被重定向的漏洞',tag:'SOLIDITY / SECURITY',color:'#c1a7ee',description:'交互对比普通签名、正确 Witness 绑定及错误集成。',featured:'S23'},
+
  trie:{name:'以太坊经典三棵树',sub:'从执行区块头到 State / Tx / Receipt Trie',tag:'ETHEREUM / DATA STRUCTURE',color:'#b8e97b',description:'区块头中的三个 Root 各自承诺不同的数据集合；账户里的 storageRoot 继续指向该账户的 Storage Trie。',featured:'E01'},
  mpt:{name:'MPT 节点解剖',sub:'Branch · Extension · Leaf 的工作方式',tag:'DATA STRUCTURE / MPT',color:'#85dadb',description:'MPT 组合了 16 叉 Trie、路径压缩与哈希承诺。节点引用可内联短 RLP 或使用 Keccak-256 哈希。',featured:'E02'},
  storage:{name:'Storage Slot 双重哈希',sub:'从 mapping(address → uint256) 推导 Trie Key',tag:'SOLIDITY / STORAGE',color:'#a9a1ff',description:'第一次 Keccak 计算 Solidity 逻辑 Slot；第二次才是经典 Secure Storage Trie 的路径哈希。',featured:'E07'},
@@ -150,7 +154,7 @@ const META={
  signature:{name:'EIP-712 签名结构',sub:'Domain、Struct Hash、Nonce 与签名重放',tag:'CRYPTO / SIGNATURE',color:'#8bd9d4',description:'链 ID、合约、消息参数和 nonce 等应被正确绑定在签名域/业务协议中，避免跨链或跨业务重复授权。',featured:'S08'},
  l2:{name:'执行层 / 共识层 / L2',sub:'EL–CL 与 Rollup 的状态承诺关系',tag:'ETHEREUM / ARCHITECTURE',color:'#8cc5f3',description:'执行层 stateRoot、共识层 Beacon State Root、L2 输出承诺不是同一个根，也不表示相同的最终性。',featured:'E24'}
 };
-const defaultS={trie:'overview',mpt:'branch',storage:1,proof:'account',evm:0,gas:{base:24,max:45,tip:5},reorg:'canonical',kafka:'normal',lock:'unsafe',mvcc:'rr',btree:'cluster',gmp:'running',retries:2,tx:0,proxy:'delegate',signature:'domain',l2:'elcl'};
+const defaultS={allowance:'approve',permit2:'native',witness:'plain',trie:'overview',mpt:'branch',storage:1,proof:'account',evm:0,gas:{base:24,max:45,tip:5},reorg:'canonical',kafka:'normal',lock:'unsafe',mvcc:'rr',btree:'cluster',gmp:'running',retries:2,tx:0,proxy:'delegate',signature:'domain',l2:'elcl'};
 const defs=`<defs><marker id="d-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#9ec8a7"/></marker><filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
 const esc=(x)=>String(x).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const node=(x,y,w,h,label,sub,variant='')=>`<rect x="${x}" y="${y}" rx="12" width="${w}" height="${h}" class="dnode ${variant}"/><text x="${x+w/2}" y="${y+25}" text-anchor="middle" class="dtext">${label}</text>${sub?`<text x="${x+w/2}" y="${y+42}" text-anchor="middle" class="dsmall">${sub}</text>`:''}`;
@@ -256,7 +260,36 @@ function diagramL2(s){let roll=s.l2==='rollup';
  let v=roll?`${node(40,111,181,73,'L2 Sequencer','transactions & receipts','bright')}${line(221,148,272,148,'accent')}${node(273,111,206,73,'Rollup Commitment','L2 state / output root','bright')}${line(479,148,530,148,'accent')}${node(530,111,182,73,'L1 Contracts','verify / challenge','purple')}<text x="376" y="262" fill="#b5cdbe" text-anchor="middle">L2 最终性须由对应 Rollup 的 L1 发布与证明/挑战规则决定</text>`:
  `${node(37,111,183,73,'Consensus Layer','Beacon state / SSZ','purple')}${path('M220 149H271', 'accent')}${node(273,111,202,73,'Engine API','EL ↔ CL','bright')}${line(475,149,528,149,'accent')}${node(529,111,182,73,'Execution Layer','EVM / stateRoot','bright')}<text x="375" y="261" fill="#b5cdbe" text-anchor="middle">Beacon State Root ≠ Execution stateRoot（数据格式和语义不同）</text>`;
  return{visual:svg(v),controls:tab('l2',[['elcl','EL / CL 分层'],['rollup','Rollup / L1']],s.l2),desc:roll?'Rollup 提交到 L1 的根、输出或批次承诺，与 L1 执行区块头的 stateRoot 不是一回事。':'CL 负责 PoS 分叉选择与最终性；EL 验证执行 Payload 的交易、状态转换和收据。'};}
-const RENDER={trie:diagramTrie,mpt:diagramMpt,storage:diagramStorage,proof:diagramProof,evm:diagramEvm,gas:diagramGas,reorg:diagramReorg,kafka:diagramKafka,lock:diagramLock,mvcc:diagramMvcc,btree:diagramBtree,gmp:diagramGmp,retries:diagramRetries,tx:diagramTx,proxy:diagramProxy,signature:diagramSignature,l2:diagramL2};
+
+function diagramAllowance(s){
+ const mode=s.allowance||'approve';
+ const data={
+  approve:['approve(Bob, 50)','100 已消费 → 直接重设 50','Bob 累计最多花 150','旧授权已被消费，新额度又被覆盖设置为 50。'],
+  delta:['decreaseAllowance(Bob, 50)','剩余 0，检查 0 < 50','操作 revert · Bob 已花 100','原子减法不会凭空补发旧额度，但方法并非 ERC-20 标准必备。'],
+  zero:['approve(0) → approve(50)','先被花 100，之后归零再授 50','历史累计仍可能到 150','归零不会追溯撤销已花掉的旧额度；只有等待 0 生效，才能开始重新授权。']
+ }[mode];
+ return {visual:`<div class="diagram-slide"><div class="diagram-flow"><div class="flow-box"><div class="flow-name">初始授权</div><div class="flow-desc">Alice → Bob = 100</div></div>${arrowSvg()}<div class="flow-box"><div class="flow-name">Bob 抢先执行</div><div class="flow-desc">transferFrom(100)</div></div>${arrowSvg()}<div class="flow-box highlight"><div class="flow-name">${data[0]}</div><div class="flow-desc">${data[1]}</div></div></div><div class="metric-tile" style="max-width:320px;margin:20px auto"><div class="num" style="font-size:19px">${data[2]}</div><div class="label">结果（假设 Alice 余额充足）</div></div></div>`,controls:tab('allowance',[['approve','直接 approve(50)'],['delta','原子减少 50'],['zero','先清零再授权']],mode),desc:data[3]};
+}
+function diagramPermit2(s){
+ const mode=s.permit2||'native';
+ const data={
+  native:['Token 本身','EIP-712 许可签名','Token allowance','permit() 设置额度，不直接转账；Token 需支持 ERC-2612。'],
+  allow:['Token → Permit2','签名限额与到期时间','可重复子授权','AllowanceTransfer：Permit2 内保存 owner/token/spender 子额度。'],
+  once:['Token → Permit2','一次性签名 + bitmap','执行转账 · nonce 作废','SignatureTransfer：没有持久子授权，但 Token 的基础授权仍存在。']
+ }[mode];
+ return {visual:`<div class="diagram-slide"><div class="diagram-flow"><div class="flow-box"><div class="flow-name">${data[0]}</div><div class="flow-desc">授权入口</div></div>${arrowSvg()}<div class="flow-box highlight"><div class="flow-name">${data[1]}</div><div class="flow-desc">权限校验</div></div>${arrowSvg()}<div class="flow-box"><div class="flow-name">${data[2]}</div><div class="flow-desc">链上效果</div></div></div></div>`,controls:tab('permit2',[['native','ERC-2612 Permit'],['allow','AllowanceTransfer'],['once','SignatureTransfer']],mode),desc:data[3]};
+}
+function diagramWitness(s){
+ const mode=s.witness||'plain';
+ const data={
+  plain:['签 Token / 上限 / Nonce','Router 填 to / amount','收款人未天然绑定','普通 SignatureTransfer 的 transferDetails.to / requestedAmount 是 spender 执行时提供。'],
+  safe:['签 Bob / 100 / ORDER-123','Router 使用 Bob / 100','签名与实际执行一致','从已签业务字段构造 transferDetails，并检查 owner、Token 和订单。'],
+  bug:['Witness 签 Bob / 100','Router 使用 Attacker','⚠ 签名通过也能转错','漏洞：只验证 Witness 哈希，却没有验证 transferDetails.to 必须等于 signed recipient。']
+ }[mode];
+ return {visual:`<div class="diagram-slide"><div class="diagram-flow"><div class="flow-box"><div class="flow-name">用户签名</div><div class="flow-desc">${data[0]}</div></div>${arrowSvg()}<div class="flow-box ${mode==='safe'?'highlight':''}"><div class="flow-name">Router 执行</div><div class="flow-desc">${data[1]}</div></div>${arrowSvg()}<div class="flow-box ${mode==='bug'?'':'highlight'}" style="border-color:${mode==='bug'?'#f2908b':''}"><div class="flow-name">结果</div><div class="flow-desc">${data[2]}</div></div></div></div>`,controls:tab('witness',[['plain','普通签名'],['safe','正确绑定'],['bug','错误集成']],mode),desc:data[3]};
+}
+
+const RENDER={allowance:diagramAllowance,permit2:diagramPermit2,witness:diagramWitness,trie:diagramTrie,mpt:diagramMpt,storage:diagramStorage,proof:diagramProof,evm:diagramEvm,gas:diagramGas,reorg:diagramReorg,kafka:diagramKafka,lock:diagramLock,mvcc:diagramMvcc,btree:diagramBtree,gmp:diagramGmp,retries:diagramRetries,tx:diagramTx,proxy:diagramProxy,signature:diagramSignature,l2:diagramL2};
 function render(type,states,compact=false){const meta=META[type];if(!meta)return'';let obj=RENDER[type](states||defaultS),desc=obj.desc||meta.description;
  if(compact)return `<div class="lab-art-preview">${obj.visual}</div>`;
  return `<section class="diagram-card" aria-label="${esc(meta.name)} 交互图解"><div class="diagram-head"><span class="diagram-badge">✳ INTERACTIVE DIAGRAM <span style="opacity:.45">/</span> ${esc(meta.tag)}</span><span class="tiny" style="color:#90aca7">可交互</span></div><div class="diagram-visual">${obj.visual}</div>${obj.controls||''}<div class="diagram-desc">${infoIcon()}<span data-diagram-desc>${esc(desc)}</span></div></section>`;
