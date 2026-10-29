@@ -282,7 +282,7 @@ const META={
 
  trie:{name:'以太坊经典三棵树',sub:'从执行区块头到 State / Tx / Receipt Trie',tag:'ETHEREUM / DATA STRUCTURE',color:'#b8e97b',description:'区块头中的三个 Root 各自承诺不同的数据集合；账户里的 storageRoot 继续指向该账户的 Storage Trie。',featured:'E01'},
  mpt:{name:'MPT 节点解剖',sub:'Branch · Extension · Leaf 的工作方式',tag:'DATA STRUCTURE / MPT',color:'#85dadb',description:'MPT 组合了 16 叉 Trie、路径压缩与哈希承诺。节点引用可内联短 RLP 或使用 Keccak-256 哈希。',featured:'E02'},
- storage:{name:'Storage Slot 双重哈希',sub:'从 mapping(address → uint256) 推导 Trie Key',tag:'SOLIDITY / STORAGE',color:'#a9a1ff',description:'第一次 Keccak 计算 Solidity 逻辑 Slot；第二次才是经典 Secure Storage Trie 的路径哈希。',featured:'E07'},
+ storage:{name:'Storage Slot 双重哈希',sub:'从 mapping(address → uint256) 推导 Trie Key',tag:'SOLIDITY / STORAGE',color:'#a9a1ff',description:'第一次 Keccak 计算 Solidity 逻辑 Slot；第二次才是经典 Secure Storage Trie 的路径哈希。',featured:'E06'},
  proof:{name:'双层 Merkle Proof',sub:'验证账户状态，再验证具体的合约存储值',tag:'ETHEREUM / PROOF',color:'#86d8d5',description:'只有可信区块头中的 stateRoot 才能成为证明的锚点。Proof 验证值与根的关系，不自动证明链头的真实性。',featured:'E12'},
  evm:{name:'EVM 栈机模拟器',sub:'逐条执行 PUSH、ADD 与 SSTORE',tag:'EVM / EXECUTION',color:'#c0ed7a',description:'EVM 是 256-bit 字长的栈机。Memory 是调用帧临时内存，Storage 是跨交易持久状态。',featured:'E14'},
  gas:{name:'EIP-1559 Gas 定价',sub:'拖动三种参数，观察实际优先费与单价',tag:'ECONOMICS / EIP-1559',color:'#f0ba80',description:'有效优先费 = min(maxPriorityFeePerGas, maxFeePerGas − baseFeePerGas)。baseFee 被销毁，优先费给区块构建者/提议者相关费用接收方。',featured:'E15'},
@@ -293,7 +293,7 @@ const META={
  btree:{name:'InnoDB B+Tree 索引',sub:'聚簇索引与范围扫描的叶子组织',tag:'MYSQL / INDEX',color:'#8bd4d4',description:'B+Tree 内部节点提供键范围导航，聚簇索引叶页存行记录；有序叶页利于范围访问。',featured:'M01'},
  gmp:{name:'Go GMP 调度模型',sub:'Goroutine、P、M 与 CPU 线程',tag:'GOLANG / RUNTIME',color:'#74dcd4',description:'P 是执行 Go 代码的调度上下文，M 对应 OS 线程，G 是 goroutine。网络等待可以挂起 G，而不是长期占住线程。',featured:'G01'},
  retries:{name:'重试风暴放大器',sub:'模拟 3 层微服务的重试次数',tag:'SRE / RESILIENCE',color:'#e7b482',description:'多层无协调重试叠加可能指数放大下游请求。应该设置总超时预算、抖动、重试预算与熔断。',featured:'H04'},
- tx:{name:'链上交易状态机',sub:'从业务请求到 Finalized 的 Tx Manager',tag:'WEB3 / TRANSACTION',color:'#b9ec77',description:'广播超时是未知，不是失败。持久化 raw tx / nonce / hash，替换时沿用相同 nonce 和业务意图。',featured:'B04'},
+ tx:{name:'链上交易状态机',sub:'从业务请求到 Finalized 的 Tx Manager',tag:'WEB3 / TRANSACTION',color:'#b9ec77',description:'广播超时是未知，不是失败。持久化 raw tx / nonce / hash，替换时沿用相同 nonce 和业务意图。',featured:'B02'},
  proxy:{name:'Proxy / delegatecall',sub:'逻辑代码和合约状态位于不同账户',tag:'SOLIDITY / UPGRADE',color:'#b09bff',description:'delegatecall 在调用方的地址和 Storage 上下文里运行实现代码。Storage Layout 和升级权限是主要安全边界。',featured:'S07'},
  signature:{name:'EIP-712 签名结构',sub:'Domain、Struct Hash、Nonce 与签名重放',tag:'CRYPTO / SIGNATURE',color:'#8bd9d4',description:'链 ID、合约、消息参数和 nonce 等应被正确绑定在签名域/业务协议中，避免跨链或跨业务重复授权。',featured:'S08'},
  l2:{name:'执行层 / 共识层 / L2',sub:'EL–CL 与 Rollup 的状态承诺关系',tag:'ETHEREUM / ARCHITECTURE',color:'#8cc5f3',description:'执行层 stateRoot、共识层 Beacon State Root、L2 输出承诺不是同一个根，也不表示相同的最终性。',featured:'E24'}
@@ -665,10 +665,15 @@ function labArt(type,color){
  case 'signature':art=`${rect(10,40,89,46,'DOMAIN')}${rect(116,40,90,46,'STRUCT')}${rect(223,40,88,46,'SIGN')}${line('M99 63h17 M206 63h17')}${circle(266,23,9)}${line('M266 32v8')}`;break;
  case 'l2':art=`${rect(17,40,98,53,'CL / SSZ')}${rect(124,40,81,53,'ENGINE')}${rect(215,40,95,53,'EL / EVM')}${line('M115 67h9 M205 67h10')}${rect(107,105,107,19,'ROLLUP ROOT')}`;break;
  }
- if(!art){art=`${rect(9,18,92,36,'INPUT')}${line('M101 36h14')}${rect(115,18,92,36,'STATE')}${line('M207 36h14')}${rect(221,18,91,36,'RESULT')}${line('M55 54v23h211v-23',true)}${rect(83,84,156,27,'INTERACTIVE')}`;}
+ if(!art){
+ const spec=window.StackAtlasExtra?.registry?.[type];
+ const steps=spec?.kind==='logs'?['UNDO','REDO','BINLOG']:spec?.kind==='nextkey'?['15','(15,20]','20']:(spec?.states?.[0]?.nodes||[]).slice(0,3).map(n=>n.title.slice(0,8));
+ const labels=[steps?.[0]||'INPUT',steps?.[1]||'STATE',steps?.[2]||'RESULT'];
+ art=`${rect(9,18,92,36,labels[0])}${line('M101 36h14')}${rect(115,18,92,36,labels[1])}${line('M207 36h14')}${rect(221,18,91,36,labels[2])}${line('M55 54v23h211v-23',true)}${rect(83,84,156,27,'INTERACTIVE')}`;
+}
  return `<svg viewBox="0 0 320 130" aria-hidden="true"><defs><radialGradient id="p${type}"><stop stop-color="${color}" stop-opacity=".23"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient></defs><circle cx="165" cy="60" r="112" fill="url(#p${type})"/>${art}</svg>`;
 }
-function renderLabs(){const metas=Object.entries(DIAG.meta);return`<div class="page-title"><div><div class="caption">VISUAL LEARNING / INTERACTIVE PLAYGROUND</div><h1>图解实验室 <span style="font:500 16px var(--mono);color:var(--accent)">✳ ${metas.length} MODULES</span></h1><p>把抽象概念变成可以探索的模型。每个图解都与对应的深度问答相连。</p></div><button class="btn outline sm" data-action="category" data-category="ethereum">${icon('hex',16)} 以太坊专题</button></div><div class="lab-grid">${metas.map(([key,m],i)=>`<button class="lab-card" data-action="open-diagram" data-type="${key}"><div class="lab-art" style="--labglow:${m.color}2f">${labArt(key,m.color)}</div><div class="lab-text"><small>0${i+1} / ${escapeHTML(m.tag)}</small><h3>${escapeHTML(m.name)}</h3><p>${escapeHTML(m.sub)}</p><div class="lab-footer"><span>关联问题 ${m.featured}</span><span style="color:var(--accent)">开始探索 ${icon('right',14)}</span></div></div></button>`).join('')}</div>`;}
+function renderLabs(){const metas=Object.entries(DIAG.meta).filter(([type,m])=>state.questions.some(q=>q.id===m.featured&&q.diagram===type));return`<div class="page-title"><div><div class="caption">VISUAL LEARNING / INTERACTIVE PLAYGROUND</div><h1>图解实验室 <span style="font:500 16px var(--mono);color:var(--accent)">✳ ${metas.length} MODULES</span></h1><p>把抽象概念变成可以探索的模型。每个图解都与对应的深度问答相连。</p></div><button class="btn outline sm" data-action="category" data-category="ethereum">${icon('hex',16)} 以太坊专题</button></div><div class="lab-grid">${metas.map(([key,m],i)=>`<button class="lab-card" data-action="open-diagram" data-type="${key}"><div class="lab-art" style="--labglow:${m.color}2f">${labArt(key,m.color)}</div><div class="lab-text"><small>0${i+1} / ${escapeHTML(m.tag)}</small><h3>${escapeHTML(m.name)}</h3><p>${escapeHTML(m.sub)}</p><div class="lab-footer"><span>关联问题 ${m.featured}</span><span style="color:var(--accent)">开始探索 ${icon('right',14)}</span></div></div></button>`).join('')}</div>`;}
 const PLAN=[
  ['Go 运行时与并发','调度器、GC、数据竞争与性能诊断',['G01','G02','G03','G07','G09','G13','G14','G15']],
  ['MySQL 深入内核','B+Tree、RR/MVCC、事务与高并发扣减',['M01','M02','M03','M04','M05','M06','M07','M08']],
