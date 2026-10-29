@@ -1,6 +1,6 @@
 // Stack Atlas content and rendering regression guard. No third-party packages needed.
 import { readFileSync } from 'node:fs';
-import { Script } from 'node:vm';
+import { Script, createContext } from 'node:vm';
 
 const html = readFileSync('index.html', 'utf8');
 const marker = 'window.STACK_ATLAS_SEED = ';
@@ -62,5 +62,55 @@ const careerRequirements = [
  ['Mobile font and overflow','@media(max-width:760px)']
 ];
 for(const [name,needle] of careerRequirements) if(!career.includes(needle)) fail(name+' missing');
-console.log('Stack Atlas OK: ' + questions.length + ' unique questions; ' + count + ' main scripts; '+careerScripts.length+' career scripts; responsive navigation and Markdown checks passed.');
+
+/* Diagram registry regression check: all public question-to-diagram bindings
+ * must be reviewed and all diagram modes must render without errors. */
+const audit = JSON.parse(readFileSync('diagrams/audit-map.json','utf8'));
+const bindings = Object.fromEntries(questions.filter(q=>q.diagram).map(q=>[q.id,q.diagram]));
+if(JSON.stringify(bindings)!==JSON.stringify(audit.bindings))
+  fail('Diagram binding changed without updating diagrams/audit-map.json');
+if(Object.keys(bindings).length !== audit.withDiagrams)
+  fail('Diagram audit count does not match current question data');
+const mainScripts = [...html.matchAll(scriptRegex)].map(m=>m[1]);
+const diagramContext=createContext({window:{},console});
+new Script(mainScripts[1],{filename:'base-diagrams.js'}).runInContext(diagramContext,{timeout:2000});
+const modulePaths=[...html.matchAll(/<script src="([^"]+)"\s*><\/script>/g)].map(m=>m[1]);
+const expectedPaths=[
+ './diagrams/engine.js','./diagrams/topics-backend.js',
+ './diagrams/topics-web3.js','./diagrams/topics-ethereum.js',
+ './diagrams/topics-analytics.js','./diagrams/topics-special.js'
+];
+if(JSON.stringify(modulePaths)!==JSON.stringify(expectedPaths))
+ fail('External diagram script load order changed or module missing');
+for(const path of modulePaths){
+ const code=readFileSync(path.replace(/^\.\//,''),'utf8');
+ new Script(code,{filename:path}).runInContext(diagramContext,{timeout:2000});
+}
+const diagrams=diagramContext.window.STACK_DIAGRAMS;
+const registry=diagramContext.window.StackAtlasExtra?.registry;
+if(!diagrams?.meta || !registry)fail('Diagram extension failed to register');
+const grouped={};
+for(const q of questions){
+ if(!q.diagram)continue;
+ if(!diagrams.meta[q.diagram])fail(q.id+' references an unavailable diagram: '+q.diagram);
+ (grouped[q.diagram]??=[]).push(q.id);
+ try{
+  const current=diagrams.render(q.diagram,diagrams.defaults);
+  if(!current.includes('diagram-card')||current.includes('undefined')||current.includes('NaN'))
+   fail(q.id+' diagram output invalid');
+  if(registry[q.diagram]){
+   for(const option of registry[q.diagram].states){
+    const states={...diagrams.defaults,[q.diagram]:option.id};
+    if(!diagrams.render(q.diagram,states).includes(option.title))
+     fail(q.id+' diagram option failed '+option.id);
+   }
+  }
+ }catch(e){fail(q.id+' diagram rendering failed: '+e.message)}
+}
+const repeated=Object.fromEntries(Object.entries(grouped).filter(([k,v])=>v.length>1));
+if(JSON.stringify(repeated)!==JSON.stringify(audit.intentionalReuse))
+ fail('Duplicate diagram reuse must be documented in audit-map.json');
+if(!html.includes('diagrams/extra.css'))fail('Extended diagram stylesheet missing');
+
+console.log('Stack Atlas OK: ' + questions.length + ' unique questions; ' + count + ' main scripts; '+careerScripts.length+' career scripts; '+Object.keys(grouped).length+' audited diagrams; responsive navigation and Markdown checks passed.');
 
