@@ -46,6 +46,22 @@ for (const [index, match] of careerScripts.entries()) {
  try { new Script(match[1], { filename: 'career-inline-' + index + '.js' }); }
  catch(e) { fail('Invalid career JavaScript '+index+': '+e.message); }
 }
+
+/* Desktop list must be independently scrollable all the way to the last question.
+ * This guards the prior clipping bug caused by a max-height-only flex container. */
+const mysqlQuestions=questions.filter(q=>q.category==='mysql');
+if(!mysqlQuestions.some(q=>q.id==='M15'))
+  fail('M15 missing from MySQL seed data');
+const desktopListRules=[
+ ['explicit desktop scroll height','Desktop library scrollbar fix'],
+ ['scrolling flex sizing','flex:1 1 0%'],
+ ['allow internal list to shrink','min-height:0'],
+ ['native vertical scrolling','overflow-y:auto'],
+ ['list end marker','已到题目列表底部']
+];
+for(const [name,needle] of desktopListRules)
+  if(!html.includes(needle))fail('Desktop question list regression: '+name);
+
 const mobileRequirements = [
  ['Main mobile bottom nav','mobile-bottom-nav'],
  ['Mobile question browse mode','mobile-browsing'],
