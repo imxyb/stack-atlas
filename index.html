@@ -260,6 +260,48 @@ a{color:inherit;text-decoration:none}a:hover{text-decoration:none}
  .rich-answer{font-size:15.5px}
 }
 
+
+/* Desktop library scrollbar fix: explicit flex height avoids clipping the last rows. */
+@media (min-width:761px) {
+  .library-layout .question-list-panel {
+    height:calc(100vh - 124px);
+    height:calc(100dvh - 124px);
+    max-height:calc(100dvh - 124px);
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .library-layout .filter-row,
+  .library-layout .filter-counter {flex:0 0 auto;min-height:0;}
+  .library-layout .question-scroll {
+    display:block;
+    flex:1 1 0%;
+    height:0;
+    min-height:0;
+    max-height:none;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior-y:auto;
+    scrollbar-gutter:stable;
+    padding-bottom:18px;
+    touch-action:pan-y;
+  }
+  .library-layout .question-list-end {
+    padding:17px 14px 22px;
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    background:var(--panel);
+  }
+  .library-layout .question-item:last-of-type {border-bottom:1px solid var(--line-soft);}
+}
+@media (max-width:760px) {
+  .library-layout .question-list-panel{height:auto;max-height:none;min-height:0;}
+  .library-layout .question-scroll{display:block;height:auto;max-height:none;min-height:0;flex:none;overflow:visible;padding-bottom:0;}
+  .library-layout .question-list-end {padding:18px 12px;text-align:center;font-size:12px;color:var(--muted);}
+}
+
 </style>
 <link rel="stylesheet" href="./diagrams/extra.css">
 </head>
@@ -610,7 +652,7 @@ function getFiltered(){const terms=state.search.trim().toLowerCase().split(/\s+/
 function statusLabel(id){const v=state.progress[id];return v==='mastered'?'已掌握':v==='reviewing'?'复习中':'未学习'}
 function statusIcon(id){const v=state.progress[id];return v==='mastered'?icon('check',13):v==='reviewing'?icon('clock',13):icon('eye',13)}
 function renderLibrary(){const list=getFiltered();let selected=state.questions.find(q=>q.id===state.selected);if(!selected||!list.some(q=>q.id===selected.id)){selected=list[0]||null;if(selected)state.selected=selected.id}
-return`<div class="page-title ${state.mobileReading?'mobile-reading-title':''}"><div><div class="caption">KNOWLEDGE BANK / DEPTH FIRST</div><h1>${state.savedOnly?'我的收藏':state.category!=='all'?escapeHTML(catFor(state.category).name):'深度题库'}<span style="font:500 17px var(--mono);color:var(--muted);margin-left:12px">/ ${list.length}</span></h1><p>完整参考答案 × 工程追问 × 可交互图解。选择一道题，开始深度学习。</p></div><div class="toolbar"><button class="btn outline sm" data-action="export">${icon('download',15)} 导出题库</button><button class="btn primary sm" data-action="new">${icon('plus',15)} 新增题目</button></div></div><div class="library-layout ${state.mobileReading?'mobile-reading':'mobile-browsing'}"><aside class="question-list-panel"><div class="filter-row"><div class="filter-search">${icon('search',15)}<input id="question-search" type="search" placeholder="搜索：三棵树、MVCC、GMP..." aria-label="搜索题目" value="${escapeHTML(state.search)}" /></div><div class="filter-options"><button class="filter-chip ${state.priority==='all'?'active':''}" data-action="priority" data-priority="all">全部</button><button class="filter-chip ${state.priority==='P0'?'active':''}" data-action="priority" data-priority="P0">P0 高频</button><button class="filter-chip ${state.priority==='P1'?'active':''}" data-action="priority" data-priority="P1">P1 深挖</button><button class="filter-chip ${state.priority==='P2'?'active':''}" data-action="priority" data-priority="P2">P2 进阶</button>${state.category!=='all'?`<button class="filter-chip" data-action="resetcategory">× 清除分类</button>`:''}</div></div><div class="filter-counter"><span>SHOWING ${list.length} / ${state.questions.length}</span><span>${state.savedOnly?'BOOKMARKED':'ALL TOPICS'}</span></div><div class="question-scroll" id="question-scroll">${list.length?list.map(q=>`<button class="question-item ${selected&&selected.id===q.id?'active':''}" data-action="select" data-qid="${q.id}"><div class="qtop"><span class="qid">${escapeHTML(q.id)}</span><span class="priority ${q.priority.toLowerCase()}">${q.priority}</span></div><h3>${escapeHTML(q.title)}</h3><div class="qfoot"><span>${escapeHTML(catFor(q.category).short)}</span>${q.diagram?`<span style="color:var(--accent2)">✧ 图解</span>`:''}<span class="qstatus ${state.progress[q.id]||''}">${statusIcon(q.id)}${statusLabel(q.id)}</span></div></button>`).join(''):`<div class="empty-list">${icon('search',30)}<h3>没有找到相关题目</h3><p>尝试调整关键词或筛选条件。</p><button class="btn sm" data-action="clearfilter">清空筛选</button></div>`}</div></aside><div id="reader-area"><div class="mobile-reader-back"><button class="mobile-back-button" data-action="mobile-back">${icon('left',18)} 返回题目列表</button><span class="mobile-reader-current">${selected?escapeHTML(selected.id):''}</span></div>${selected?renderReader(selected):`<div class="reader"><div class="empty-list" style="padding:110px 20px">没有可展示的题目</div></div>`}</div></div>`;}
+return`<div class="page-title ${state.mobileReading?'mobile-reading-title':''}"><div><div class="caption">KNOWLEDGE BANK / DEPTH FIRST</div><h1>${state.savedOnly?'我的收藏':state.category!=='all'?escapeHTML(catFor(state.category).name):'深度题库'}<span style="font:500 17px var(--mono);color:var(--muted);margin-left:12px">/ ${list.length}</span></h1><p>完整参考答案 × 工程追问 × 可交互图解。选择一道题，开始深度学习。</p></div><div class="toolbar"><button class="btn outline sm" data-action="export">${icon('download',15)} 导出题库</button><button class="btn primary sm" data-action="new">${icon('plus',15)} 新增题目</button></div></div><div class="library-layout ${state.mobileReading?'mobile-reading':'mobile-browsing'}"><aside class="question-list-panel"><div class="filter-row"><div class="filter-search">${icon('search',15)}<input id="question-search" type="search" placeholder="搜索：三棵树、MVCC、GMP..." aria-label="搜索题目" value="${escapeHTML(state.search)}" /></div><div class="filter-options"><button class="filter-chip ${state.priority==='all'?'active':''}" data-action="priority" data-priority="all">全部</button><button class="filter-chip ${state.priority==='P0'?'active':''}" data-action="priority" data-priority="P0">P0 高频</button><button class="filter-chip ${state.priority==='P1'?'active':''}" data-action="priority" data-priority="P1">P1 深挖</button><button class="filter-chip ${state.priority==='P2'?'active':''}" data-action="priority" data-priority="P2">P2 进阶</button>${state.category!=='all'?`<button class="filter-chip" data-action="resetcategory">× 清除分类</button>`:''}</div></div><div class="filter-counter"><span>SHOWING ${list.length} / ${state.questions.length}</span><span>${state.savedOnly?'BOOKMARKED':'ALL TOPICS'}</span></div><div class="question-scroll" id="question-scroll">${list.length?list.map(q=>`<button class="question-item ${selected&&selected.id===q.id?'active':''}" data-action="select" data-qid="${q.id}"><div class="qtop"><span class="qid">${escapeHTML(q.id)}</span><span class="priority ${q.priority.toLowerCase()}">${q.priority}</span></div><h3>${escapeHTML(q.title)}</h3><div class="qfoot"><span>${escapeHTML(catFor(q.category).short)}</span>${q.diagram?`<span style="color:var(--accent2)">✧ 图解</span>`:''}<span class="qstatus ${state.progress[q.id]||''}">${statusIcon(q.id)}${statusLabel(q.id)}</span></div></button>`).join('')+'<div class="question-list-end" aria-label="题目列表底部">已到题目列表底部</div>':`<div class="empty-list">${icon('search',30)}<h3>没有找到相关题目</h3><p>尝试调整关键词或筛选条件。</p><button class="btn sm" data-action="clearfilter">清空筛选</button></div>`}</div></aside><div id="reader-area"><div class="mobile-reader-back"><button class="mobile-back-button" data-action="mobile-back">${icon('left',18)} 返回题目列表</button><span class="mobile-reader-current">${selected?escapeHTML(selected.id):''}</span></div>${selected?renderReader(selected):`<div class="reader"><div class="empty-list" style="padding:110px 20px">没有可展示的题目</div></div>`}</div></div>`;}
 function splitAnswer(raw){let answer=String(raw||'').replace(/^\*\*参考答案[：:]\*\*\s*/,'').trim();const re=/\*\*(?:追问|面试高频追问|面试加分追问)[：:]\*\*/;const m=re.exec(answer);if(!m)return{main:answer,follow:''};return{main:answer.slice(0,m.index).trim(),follow:answer.slice(m.index).replace(re,'').trim()};}
 function inlineMd(text){let safe=escapeHTML(text);const code=[];safe=safe.replace(/`([^`]+)`/g,(_,x)=>{const tok='@@C'+code.length+'@@';code.push(`<code>${x}</code>`);return tok});
  safe=safe.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g,'<em>$1</em>');
