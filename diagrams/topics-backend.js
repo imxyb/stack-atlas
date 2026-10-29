@@ -48,4 +48,6 @@
   ['success','首次执行','强业务键',[['Client 请求 requestId','持久建立 UNIQUE Key'],['DB 事务处理','余额与结果原子写入'],['存结果/状态','后续重复请求返回相同业务状态']],'幂等不只是请求去重缓存；资金效果和幂等记录必须持久关联。'],
   ['unknown','结果未知','提交成功但响应超时',[['数据库已提交','客户端未收到 ACK'],['客户端原 requestId 重试','禁止再扣一次'],['查询既有结果','返回已确认状态']],'超时并不能直接推断失败；在提交结果未知时必须查询已有业务记录。']
  ]);
+// Show the Next-Key example by default for M04.
+ window.STACK_DIAGRAMS.defaults.nextkey='next';
 })();
