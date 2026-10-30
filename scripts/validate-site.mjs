@@ -94,7 +94,8 @@ const modulePaths=[...html.matchAll(/<script src="([^"]+)"\s*><\/script>/g)].map
 const expectedPaths=[
  './diagrams/engine.js','./diagrams/topics-backend.js',
  './diagrams/topics-web3.js','./diagrams/topics-ethereum.js',
- './diagrams/topics-analytics.js','./diagrams/topics-special.js'
+ './diagrams/topics-analytics.js','./diagrams/topics-special.js',
+ './diagrams/topics-interview-feedback.js'
 ];
 if(JSON.stringify(modulePaths)!==JSON.stringify(expectedPaths))
  fail('External diagram script load order changed or module missing');
