@@ -50,3 +50,15 @@
  .ex-commit .ex-node{padding:11px}
  .diagram-controls .dctl{min-height:42px}
 }
+
+/* RFQ/PMM feedback: responsive inventory price-curve visualization */
+.ex-pmm-wrap{width:100%;padding:0 3px}
+.ex-pmm-svg{display:block;width:100%;min-width:0;max-height:400px}
+.ex-axis-text{font:12px ui-monospace,monospace;fill:#b7cac2}
+.ex-chart-title{font:700 14px Inter,"PingFang SC",sans-serif;fill:#dbeedb}
+.ex-chart-price{font:750 18px ui-monospace,monospace;fill:#c3ee87}
+.ex-pmm-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:13px auto;max-width:790px}
+.ex-pmm-metrics>div{min-width:0;border:1px solid #426358;border-radius:10px;padding:11px;background:#1a302b}
+.ex-pmm-metrics span{display:block;color:#a9c6b7;font-size:11px}
+.ex-pmm-metrics strong{display:block;color:#cef2ae;font:700 16px ui-monospace,monospace;margin-top:6px}
+@media(max-width:760px){.ex-pmm-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.ex-pmm-svg{min-width:0!important}.ex-chart-title{font-size:15px}.ex-chart-price{font-size:21px}.ex-axis-text{font-size:13px}}
