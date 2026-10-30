@@ -62,3 +62,9 @@
 .ex-pmm-metrics span{display:block;color:#a9c6b7;font-size:11px}
 .ex-pmm-metrics strong{display:block;color:#cef2ae;font:700 16px ui-monospace,monospace;margin-top:6px}
 @media(max-width:760px){.ex-pmm-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.ex-pmm-svg{min-width:0!important}.ex-chart-title{font-size:15px}.ex-chart-price{font-size:21px}.ex-axis-text{font-size:13px}}
+
+.ex-tree-wrap svg,.ex-ring-wrap svg{display:block;width:100%;height:auto;max-height:430px}
+.ex-tree-wrap{min-width:0}
+.ex-ring-wrap{min-width:0}
+.ex-tree-order{margin:10px auto 0;max-width:720px;text-align:center;background:#23392f;border:1px solid #48695d;border-radius:10px;padding:12px;font-size:13px;color:#cbebc0}
+@media(max-width:760px){.ex-tree-wrap,.ex-ring-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}.ex-tree-wrap svg{min-width:520px}.ex-ring-wrap svg{min-width:480px}.ex-tree-order{font-size:12px;min-width:290px}}
